@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#071c2c" />
+  <meta name="description" content="Buzulun kıyısında hayvan tahmin etme oyunu." />
+  <title>Buzul Kaşifi — Hayvan Tahmin Oyunu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="gallery.css" />
+  <link rel="stylesheet" href="habitat.css" />
+  <link rel="stylesheet" href="habitat-photos.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="aurora aurora-one"></div><div class="aurora aurora-two"></div>
+  <div class="scene" aria-hidden="true">
+    <div class="stars"></div><div class="mountain mountain-back"></div><div class="mountain mountain-front"></div>
+    <div class="iceberg iceberg-left"></div><div class="iceberg iceberg-right"></div>
+    <div class="ocean"><div class="wave wave-one"></div><div class="wave wave-two"></div></div>
+    <div class="snow snow-one"></div><div class="snow snow-two"></div>
+  </div>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Buzul Kaşifi ana sayfa"><span class="brand-mark">❄</span><span>BUZUL<span class="brand-light">KAŞİFİ</span></span></a>
+      <div class="top-note"><span class="live-dot"></span> DOĞA GÖZLEMİ <span class="top-divider">/</span> KUZEY KUTBU</div>
+      <div class="top-badge">✦ <span>KEŞFET &amp; TAHMİN ET</span></div>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="hero-copy"><div class="eyebrow"><span></span> BUZULLARIN SIRLARINI ÇÖZ</div>
+        <h1>Bu sefer<br />hangi <em>hayvan?</em></h1>
+        <p class="hero-text">Bir fotoğraf yükle, kendi eğittiğin yapay zekânın buzul kaşifini tanıyıp tanımadığını gör.</p>
+        <div class="hero-facts"><div><strong>01</strong><span>Fotoğrafını ekle</span></div><i></i><div><strong>02</strong><span>Tahminini seç</span></div><i></i><div><strong>03</strong><span>Sonucu keşfet</span></div></div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="sun-halo"></div><div class="art-ice ice-a"></div><div class="art-ice ice-b"></div><div class="penguin"><div class="penguin-wing"></div><div class="penguin-belly"></div><div class="penguin-eye eye-a"></div><div class="penguin-eye eye-b"></div><div class="penguin-beak"></div><div class="penguin-feet"></div></div><div class="art-spark spark-a">✦</div><div class="art-spark spark-b">✧</div><div class="art-label">ARCTIC<br /><b>FIELD NOTES</b></div></div>
+    </section>
+
+    <section class="workspace" aria-label="Hayvan tahmin alanı">
+      <article class="panel upload-panel">
+        <div class="panel-heading"><div class="step-number">01</div><div><div class="panel-kicker">GÖZLEMİNİ EKLE</div><h2>Fotoğrafını yükle</h2></div><span class="panel-icon">↗</span></div>
+        <label class="dropzone" id="dropzone" for="image-input" tabindex="0">
+          <input id="image-input" type="file" accept="image/*" />
+          <div class="upload-content" id="upload-content"><div class="upload-symbol"><span>↑</span></div><strong>Fotoğrafını buraya bırak</strong><span class="upload-or">ya da <b>dosya seç</b></span><small>JPG, PNG veya WEBP · En fazla 10 MB</small></div>
+          <img class="preview-image" id="image-preview" alt="Yüklenen hayvan fotoğrafı önizlemesi" hidden />
+          <div class="preview-shade" id="preview-shade" hidden><span>FOTOĞRAF HAZIR</span></div>
+        </label>
+        <div class="file-meta" id="file-meta" hidden><span class="file-type">IMG</span><div class="file-info"><strong id="file-name"></strong><span id="file-size"></span></div><button class="icon-button" id="remove-image" type="button" aria-label="Yüklenen fotoğrafı sil" title="Fotoğrafı sil">×</button></div>
+        <div class="field-label"><label for="animal-select">SENİN TAHMİNİN <span>İSTEĞE BAĞLI</span></label><span class="select-hint">Model etiketleri yüklenince listelenir</span></div>
+        <div class="select-wrap"><span class="select-emoji">🐾</span><select id="animal-select" disabled><option value="">Önce model etiketleri yüklensin…</option></select><span class="select-chevron">⌄</span></div>
+        <button class="analyze-button" id="analyze-button" type="button" disabled><span class="button-spark">✧</span><span id="button-label">MODELİ BAŞLAT</span><span class="button-arrow">→</span></button>
+        <div class="model-status" id="model-status"><span class="status-spinner"></span><span id="status-text">Model hazırlanıyor…</span></div>
+        <div class="privacy-note"><span>◈</span> Fotoğrafın yalnızca bu tarayıcıda analiz edilir.</div>
+      </article>
+
+      <article class="panel results-panel" aria-live="polite">
+        <div class="panel-heading"><div class="step-number step-two">02</div><div><div class="panel-kicker">TÜRÜNÜ KEŞFET</div><h2>Hayvan fotoğrafları</h2></div><div class="scan-status" id="scan-status"><span></span> BEKLEMEDE</div></div>
+        <div class="habitat-strip" id="habitat-strip" hidden><div class="habitat-title"><span>✧</span> AYNI YAŞAM ALANINDAN</div><div class="habitat-tags" id="habitat-tags"></div></div>
+        <div class="result-empty" id="result-empty"><div class="radar"><div class="radar-ring ring-one"></div><div class="radar-ring ring-two"></div><div class="radar-cross"></div><div class="radar-center">✧</div><span class="radar-dot dot-one"></span><span class="radar-dot dot-two"></span></div><strong>Tür fotoğrafları burada</strong><p>Fotoğrafı analiz et; tanınan<br />hayvanın örneklerini gösterelim.</p><div class="empty-foot"><span>◎</span> ANALİZ BEKLENİYOR</div></div>
+        <div class="result-content" id="result-content" hidden>
+          <div class="top-prediction"><div class="prediction-icon" id="prediction-icon">🐾</div><div class="prediction-copy"><span>FOTOĞRAFTA TANINAN TÜR</span><strong id="top-label">—</strong></div><div class="confidence"><strong id="top-confidence">0%</strong><span>EŞLEŞME</span></div></div>
+          <div class="guess-feedback" id="guess-feedback" hidden></div>
+          <div class="gallery-heading"><div><span>BU TÜRÜ TANI</span><strong id="gallery-title">Örnek fotoğraflar</strong></div><span class="gallery-count" id="gallery-count">03 GÖRSEL</span></div>
+          <div class="sample-photo-grid" id="sample-photo-grid"></div>
+          <div class="result-foot"><span>✦</span> TÜR ÖRNEKLERİ WIKIMEDIA COMMONS’TAN GETİRİLİR</div>
+        </div>
+        <div class="analyzing-overlay" id="analyzing-overlay" hidden><div class="scan-animation"><span></span><i></i></div><strong>Görsel inceleniyor</strong><p>Modelin hayvanı tanımlıyor…</p></div>
+      </article>
+    </section>
+    <footer class="footer"><span>BUZUL KAŞİFİ <b>·</b> DOĞA GÖZLEM DEFTERİ</span><span>SOĞUK SULARIN SICAK HİKÂYELERİ <b>✦</b></span></footer>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+</body>
+</html>
